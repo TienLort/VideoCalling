@@ -100,15 +100,10 @@ const CallActionBox = ({onHangupPress}) => {
                 name={isMicOn ? 'microphone-off' : 'microphone'}
                 size={30}
                 color={'white'}
-                disabled={!isRecord}
               />
               <Text style={{color: 'red'}}>Start Record</Text>
             </MenuOption>
-            <MenuOption
-              onSelect={stopRecord}
-              text="Stop Record"
-              disabled={isRecord}
-            />
+            <MenuOption onSelect={stopRecord} text="Stop Record" />
           </MenuOptions>
         </Menu>
       </Pressable>

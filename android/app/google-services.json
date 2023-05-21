@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "801712468126",
-    "project_id": "videocall-65cb5",
-    "storage_bucket": "videocall-65cb5.appspot.com"
+    "project_number": "228856004081",
+    "project_id": "videocall1-51243",
+    "storage_bucket": "videocall1-51243.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:801712468126:android:722d1a0a7633979aa14b8f",
+        "mobilesdk_app_id": "1:228856004081:android:6a3d146ac68b8560afd850",
         "android_client_info": {
           "package_name": "com.deepfake"
         }
       },
       "oauth_client": [
         {
-          "client_id": "801712468126-poq2v83u53qghpvjb29jbn8b07qhji39.apps.googleusercontent.com",
+          "client_id": "228856004081-684879331d6hekki4dnpo7nqp0bd10gf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAy94Mn3kytkvApHjdjFWlcdZSaFrKw34Q"
+          "current_key": "AIzaSyBa7H0cT_HJ6vN8TgYXPal5l8nqOCisZig"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "801712468126-poq2v83u53qghpvjb29jbn8b07qhji39.apps.googleusercontent.com",
+              "client_id": "228856004081-684879331d6hekki4dnpo7nqp0bd10gf.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

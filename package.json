@@ -28,6 +28,7 @@
     "react-native-screens": "^3.20.0",
     "react-native-vector-icons": "^9.2.0",
     "react-native-voximplant": "^1.36.0",
+    "rn-slick-bottom-tabs": "^1.1.1",
     "short-unique-id": "^4.4.4"
   },
   "devDependencies": {

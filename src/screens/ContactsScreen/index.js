@@ -9,6 +9,7 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
 import {useNavigation} from '@react-navigation/core';
 import {Voximplant} from 'react-native-voximplant';
 import dummyContacts from '../../../assets/data/contacts.json';
@@ -53,7 +54,6 @@ const ContactsScreen = () => {
         style={styles.searchInput}
         placeholder="Search..."
       />
-
       <FlatList
         data={filteredContacts}
         renderItem={({item}) => (
