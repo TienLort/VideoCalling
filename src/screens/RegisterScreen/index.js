@@ -43,6 +43,8 @@ const RegisterScreen = () => {
               userAccount: userAccount,
               username: username,
               password: password,
+              avatar:
+                'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320',
             })
             .then(() => {
               console.log('User added!');
