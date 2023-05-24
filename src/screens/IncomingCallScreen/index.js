@@ -15,7 +15,6 @@ const IncomingCallScreen = () => {
 
   useEffect(() => {
     setCaller(call.getEndpoints()[0].displayName);
-
     call.on(Voximplant.CallEvents.Disconnected, callEvent => {
       navigation.navigate('Contacts');
     });
@@ -27,6 +26,14 @@ const IncomingCallScreen = () => {
 
   const onDecline = () => {
     call.decline();
+    navigation.reset({
+      index: 0,
+      routes: [
+        {
+          name: 'Contacts',
+        },
+      ],
+    });
   };
 
   const onAccept = () => {

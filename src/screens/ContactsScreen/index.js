@@ -10,7 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import {useNavigation} from '@react-navigation/core';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {Voximplant} from 'react-native-voximplant';
 import dummyContacts from '../../../assets/data/contacts.json';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -18,7 +18,10 @@ import {ListItem, Avatar} from 'react-native-elements';
 
 const ContactsScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredContacts, setFilteredContacts] = useState(dummyContacts);
+  const [filteredContacts, setFilteredContacts] = useState([]);
+  const route = useRoute();
+  const {params} = route;
+  const param1 = params?.username;
 
   const navigation = useNavigation();
   const voximplant = Voximplant.getInstance();
@@ -34,20 +37,35 @@ const ContactsScreen = () => {
   }, []);
 
   useEffect(() => {
-    const newContacts = dummyContacts.filter(contact =>
-      contact.user_display_name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()),
-    );
-    setFilteredContacts(newContacts);
+    const data = [];
+    firestore()
+      .collection('Users')
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(documentSnapshot => {
+          data.push(documentSnapshot.data());
+          const newContacts = data.filter(contact =>
+            contact.userAccount
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()),
+          );
+          const newContacts1 = newContacts.filter(
+            contact => contact.username !== param1.username,
+          );
+          setFilteredContacts(newContacts1);
+        });
+      });
   }, [searchTerm]);
 
   const callUser = user => {
-    navigation.navigate('Calling', {user});
+    navigation.navigate('Calling', {
+      user,
+      userAuth: param1.username,
+    });
   };
-
   return (
     <View style={styles.page}>
+      <Text>{param1.username}</Text>
       <TextInput
         value={searchTerm}
         onChangeText={setSearchTerm}
@@ -58,11 +76,11 @@ const ContactsScreen = () => {
         data={filteredContacts}
         renderItem={({item}) => (
           <View styles={{flex: 1}}>
-            <ListItem key={item.user_id} bottomDivider>
-              <Avatar rounded size="large" source={{uri: item.avatarUrl}} />
+            <ListItem key={item.username} bottomDivider>
+              <Avatar rounded size="large" source={{uri: item.avatar}} />
               <ListItem.Content>
-                <ListItem.Title>{item.user_name}</ListItem.Title>
-                <ListItem.Subtitle>{item.user_display_name}</ListItem.Subtitle>
+                <ListItem.Title>{item.userAccount}</ListItem.Title>
+                <ListItem.Subtitle>{item.username}</ListItem.Subtitle>
               </ListItem.Content>
               <Pressable
                 onPress={() => callUser(item)}
@@ -72,8 +90,6 @@ const ContactsScreen = () => {
             </ListItem>
           </View>
         )}
-        keyExtractor={user => user.user_id.toString()}
-        // renderItem={getUserItem}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </View>

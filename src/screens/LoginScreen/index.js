@@ -39,19 +39,23 @@ const LoginScreen = () => {
       const fqUsername = `${username}@${APP_NAME}.${ACC_NAME}.voximplant.com`;
       await voximplant.login(fqUsername, password);
 
-      redirectHome();
+      redirectHome(username);
     } catch (e) {
       console.log(e);
       Alert.alert(e.name, `Error code: ${e.code}`);
     }
   };
 
-  const redirectHome = () => {
+  const redirectHome = username => {
+    console.log(username);
     navigation.reset({
       index: 0,
       routes: [
         {
           name: 'Contacts',
+          params: {
+            username: {username},
+          },
         },
       ],
     });

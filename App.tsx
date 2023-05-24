@@ -1,23 +1,19 @@
 import React from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
   StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
+  StyleSheet
 } from 'react-native';
-import Navigation from "./src/navigation";
+import { NavigationContainer } from "@react-navigation/native";
 import { MenuProvider } from 'react-native-popup-menu';
+import BottomTabNavigator from './src/navigation/TabNavigator';
+import StackNavigator from './src/navigation/StackNavigator';
 
 function App(): JSX.Element {
   return (
     <MenuProvider>
       <StatusBar barStyle={'dark-content'} />
-      <Navigation />
+      <StackNavigator />
     </MenuProvider>
-
   );
 }
 

@@ -6,6 +6,8 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import ShortUniqueId from 'short-unique-id';
 import storage from '@react-native-firebase/storage';
 import ScreenRecorder from 'react-native-screen-mic-recorder';
+import {captureScreen} from 'react-native-view-shot';
+
 import {
   Menu,
   MenuOptions,
@@ -13,7 +15,8 @@ import {
   MenuTrigger,
 } from 'react-native-popup-menu';
 
-const CallActionBox = ({onHangupPress}) => {
+const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
+  console.log('userAuth1: ' + userAuth, userCall);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isRecord, setIsRecord] = useState(false);
@@ -55,12 +58,12 @@ const CallActionBox = ({onHangupPress}) => {
     );
     Alert.alert(uri);
     console.log(uri);
-    getData(uri);
+    pushData(uri, 'Video');
     setIsRecord(currentValue => !currentValue);
   };
-  const getData = url => {
+  const pushData = (url, type) => {
     storage()
-      .ref(`upload/VideoCall-${uid()}`)
+      .ref(`${userAuth}/${userCall}/${type}Call-${uid()}`)
       .putFile(url)
       .catch(error => {
         console.log(error);

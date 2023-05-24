@@ -3,13 +3,12 @@ import {View, StyleSheet} from 'react-native';
 import CallActionBox from '../../components/CallActionBox';
 
 const CallScreen = () => {
-  return (
-    <View style={styles.page}>
-      <View style={styles.cameraPreview} />
+  // <View style={styles.page}>
+  //   <View style={styles.cameraPreview} />
 
-      <CallActionBox />
-    </View>
-  );
+  //   <CallActionBox />
+  // </View>
+  return <View></View>;
 };
 
 const styles = StyleSheet.create({
