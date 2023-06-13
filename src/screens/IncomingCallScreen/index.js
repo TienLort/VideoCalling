@@ -16,7 +16,9 @@ const IncomingCallScreen = () => {
   useEffect(() => {
     setCaller(call.getEndpoints()[0].displayName);
     call.on(Voximplant.CallEvents.Disconnected, callEvent => {
-      navigation.navigate('Contacts');
+      navigation.navigate('Contacts', {
+        username: {username: userAuth},
+      });
     });
 
     return () => {
@@ -31,6 +33,9 @@ const IncomingCallScreen = () => {
       routes: [
         {
           name: 'Contacts',
+          params: {
+            username: {username: call.getEndpoints()[0].displayName},
+          },
         },
       ],
     });

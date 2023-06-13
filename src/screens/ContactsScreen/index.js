@@ -12,7 +12,7 @@ import {
 import firestore from '@react-native-firebase/firestore';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {Voximplant} from 'react-native-voximplant';
-import dummyContacts from '../../../assets/data/contacts.json';
+import storage from '@react-native-firebase/storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {ListItem, Avatar} from 'react-native-elements';
 
@@ -22,10 +22,9 @@ const ContactsScreen = () => {
   const route = useRoute();
   const {params} = route;
   const param1 = params?.username;
-
+  console.log('vao param nay', params);
   const navigation = useNavigation();
   const voximplant = Voximplant.getInstance();
-
   useEffect(() => {
     voximplant.on(Voximplant.ClientEvents.IncomingCall, incomingCallEvent => {
       navigation.navigate('IncomingCall', {call: incomingCallEvent.call});
@@ -45,12 +44,12 @@ const ContactsScreen = () => {
         querySnapshot.forEach(documentSnapshot => {
           data.push(documentSnapshot.data());
           const newContacts = data.filter(contact =>
-            contact.userAccount
+            contact.displayName
               .toLowerCase()
               .includes(searchTerm.toLowerCase()),
           );
           const newContacts1 = newContacts.filter(
-            contact => contact.username !== param1.username,
+            contact => contact.displayName !== param1.username,
           );
           setFilteredContacts(newContacts1);
         });
@@ -58,11 +57,13 @@ const ContactsScreen = () => {
   }, [searchTerm]);
 
   const callUser = user => {
+    console.log('user o contact', user);
     navigation.navigate('Calling', {
       user,
       userAuth: param1.username,
     });
   };
+
   return (
     <View style={styles.page}>
       <Text>{param1.username}</Text>
@@ -77,10 +78,10 @@ const ContactsScreen = () => {
         renderItem={({item}) => (
           <View styles={{flex: 1}}>
             <ListItem key={item.username} bottomDivider>
-              <Avatar rounded size="large" source={{uri: item.avatar}} />
+              <Avatar rounded size="large" source={{uri: item.photoURL}} />
               <ListItem.Content>
-                <ListItem.Title>{item.userAccount}</ListItem.Title>
-                <ListItem.Subtitle>{item.username}</ListItem.Subtitle>
+                <ListItem.Title>{item.email}</ListItem.Title>
+                <ListItem.Subtitle>{item.displayName}</ListItem.Subtitle>
               </ListItem.Content>
               <Pressable
                 onPress={() => callUser(item)}
