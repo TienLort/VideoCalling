@@ -20,6 +20,9 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isRecord, setIsRecord] = useState(false);
+  const API_URL =
+    Platform.OS === 'ios' ? 'http://localhost:8000' : 'http://10.0.2.2:8000';
+
   const uid = new ShortUniqueId({length: 4});
   const onReverseCamera = () => {
     console.warn('onReverseCamera');
@@ -61,15 +64,54 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
     pushData(uri, 'Video');
     setIsRecord(currentValue => !currentValue);
   };
-  const pushData = (url, type) => {
+  const pushData = async (url, type) => {
+    const uidNow = uid();
     storage()
-      .ref(`${userAuth}/${userCall}/${type}Call-${uid()}`)
+      .ref(
+        `${userAuth}/call/${userCall}/${type}Call-${uidNow}/${type}Call-${uidNow}`,
+      )
       .putFile(url)
       .catch(error => {
         console.log(error);
       });
-  };
+    try {
+      const payload = {
+        urlUpload: `${userAuth}/call/${userCall}/${type}Call-${uidNow}/${type}Call-${uidNow}`,
+        type: 'video',
+      };
+      console.log(payload);
 
+      setTimeout(async () => {
+        const findFaceResponse = await fetch(`${API_URL}/api/findface`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (findFaceResponse.ok) {
+          const deepFakeResponse = await fetch(`${API_URL}/api/deepfake`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          // Xử lý dữ liệu trả về từ deepfake API
+          const deepFakeData = await deepFakeResponse.json();
+          console.log(deepFakeData);
+        } else {
+          // Xử lý khi gọi findface API không thành công
+          console.error('Call to findface API failed.');
+        }
+      }, 3000); // Thực hiện sau 3 giây (3000 miliseconds)
+    } catch (e) {
+      console.log(e);
+      Alert.alert(e.name, `Error code: ${e.code}`);
+    }
+  };
   return (
     <View style={styles.buttonsContainer}>
       <Pressable onPress={onReverseCamera} style={styles.iconButton}>

@@ -28,6 +28,7 @@ const CallingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const svgRef = useRef(null);
+  console.log('route', route);
   const {user, call: incomingCall, isIncomingCall, userAuth} = route?.params;
   const voximplant = Voximplant.getInstance();
   const call = useRef(incomingCall);
@@ -61,63 +62,6 @@ const CallingScreen = () => {
     if (!permissionGranted) {
       return;
     }
-    const detectFaces = async () => {
-      // const detectFaces = async frame => {
-      try {
-        // Xử lý frame hình ảnh để nhận diện khuôn mặt
-
-        // Ví dụ: Sử dụng OpenCV để nhận diện khuôn mặt
-        // const detectedFaces = await OpenCV.detectFaces(frame);
-        console.log('Vao Day');
-        // Vẽ ô vuông đỏ trên video
-        // drawBoundingBoxes(detectedFaces);
-        drawBoundingBoxes();
-      } catch (error) {
-        console.log('Error detecting faces:', error);
-      }
-    };
-
-    const drawBoundingBoxes = () => {
-      // const drawBoundingBoxes = faces => {
-      // const svgWidth = videoRef.current.clientWidth;
-      // const svgHeight = videoRef.current.clientHeight;
-      const svgWidth = 120;
-      const svgHeight = 120;
-      console.log('Vao Day lan 2');
-      // Xóa các ô vuông đã vẽ trước đó
-      svgRef.current && svgRef.current.clear();
-
-      // Vẽ ô vuông đỏ cho mỗi khuôn mặt được nhận diện
-      // faces.forEach(face => {
-      // const {x, y, width, height} = face;
-
-      const rectProps = {
-        // x: (x / videoRef.current.videoWidth) * svgWidth,
-        // y: (y / videoRef.current.videoHeight) * svgHeight,
-        // width: (width / videoRef.current.videoWidth) * svgWidth,
-        // height: (height / videoRef.current.videoHeight) * svgHeight,
-        x: 120,
-        y: 120,
-        width: 120,
-        height: 120,
-        fill: 'transparent',
-        stroke: 'red',
-        strokeWidth: 2,
-      };
-
-      svgRef.current && svgRef.current.add(<Rect {...rectProps} />);
-    };
-    // });
-
-    const handleVideoStream = () => {
-      // const handleVideoStream = event => {
-      // const frame = event.frameBuffer; // Lấy frame hình ảnh từ video stream
-
-      // Gọi hàm nhận diện khuôn mặt cho mỗi frame
-      detectFaces();
-      // detectFaces(frame);
-    };
-
     const callSettings = {
       video: {
         sendVideo: true,
@@ -126,7 +70,8 @@ const CallingScreen = () => {
     };
 
     const makeCall = async () => {
-      call.current = await voximplant.call(user.username, callSettings);
+      call.current = await voximplant.call(user.displayName, callSettings);
+      console.log('user', user.displayName);
       subscribeToCallEvents();
     };
 
@@ -145,11 +90,12 @@ const CallingScreen = () => {
         setCallStatus('Calling...');
       });
       call.current.on(Voximplant.CallEvents.Connected, callEvent => {
-        handleVideoStream();
         setCallStatus('Connected');
       });
       call.current.on(Voximplant.CallEvents.Disconnected, callEvent => {
-        navigation.navigate('Contacts');
+        navigation.navigate('Contacts', {
+          username: {username: userAuth},
+        });
       });
       call.current.on(
         Voximplant.CallEvents.LocalVideoStreamAdded,
@@ -176,7 +122,9 @@ const CallingScreen = () => {
       Alert.alert('Call failed', `Reason: ${reason}`, [
         {
           text: 'Ok',
-          onPress: navigation.navigate('Contacts'),
+          onPress: navigation.navigate('Contacts', {
+            username: {username: userAuth},
+          }),
         },
       ]);
     };
@@ -225,14 +173,14 @@ const CallingScreen = () => {
         }}
       />
       <View style={styles.cameraPreview}>
-        <Text style={styles.name}>{user?.userAccount}</Text>
+        <Text style={styles.name}>{user?.email}</Text>
         <Text style={styles.phoneNumber}>{callStatus}</Text>
       </View>
 
       <CallActionBox
         onHangupPress={onHangupPress}
         userAuth={userAuth}
-        userCall={user.username}
+        userCall={user?.displayName}
       />
     </View>
   );

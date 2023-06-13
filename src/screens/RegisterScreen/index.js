@@ -23,9 +23,9 @@ const RegisterScreen = () => {
   const signUp = async () => {
     try {
       const payload = {
-        userAccount,
-        username,
-        password,
+        userDisplayName: userAccount,
+        userName: username,
+        userPassword: password,
       };
       console.log(payload);
       fetch(`${API_URL}/api/signup`, {
@@ -36,15 +36,19 @@ const RegisterScreen = () => {
         body: JSON.stringify(payload),
       })
         .then(() => {
+          const uid = generateUID();
           firestore()
             .collection('Users')
             .doc(userAccount)
             .set({
-              userAccount: userAccount,
-              username: username,
-              password: password,
-              avatar:
+              displayName: username,
+              email: userAccount,
+              photoURL:
                 'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320',
+              uid: uid,
+              providerId: 'password',
+              keywords: generateKeywords(username?.toLowerCase() ?? ''),
+              createdAt: firestore.FieldValue.serverTimestamp(),
             })
             .then(() => {
               console.log('User added!');
@@ -59,6 +63,66 @@ const RegisterScreen = () => {
       Alert.alert(e.name, `Error code: ${e.code}`);
     }
   };
+  const generateUID = () => {
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let uid = '';
+
+    for (let i = 0; i < 16; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      uid += characters.charAt(randomIndex);
+    }
+
+    return uid;
+  };
+  const generateKeywords = displayName => {
+    const name = displayName.split(' ').filter(word => word);
+
+    const length = name.length;
+    let flagArray = [];
+    let result = [];
+    let stringArray = [];
+
+    for (let i = 0; i < length; i++) {
+      flagArray[i] = false;
+    }
+
+    const createKeywords = name => {
+      const arrName = [];
+      let curName = '';
+      name.split('').forEach(letter => {
+        curName += letter;
+        arrName.push(curName);
+      });
+      return arrName;
+    };
+
+    const findPermutation = k => {
+      for (let i = 0; i < length; i++) {
+        if (!flagArray[i]) {
+          flagArray[i] = true;
+          result[k] = name[i];
+
+          if (k === length - 1) {
+            stringArray.push(result.join(' '));
+          }
+
+          findPermutation(k + 1);
+          flagArray[i] = false;
+        }
+      }
+    };
+
+    findPermutation(0);
+
+    const keywords = stringArray.reduce((acc, cur) => {
+      const words = createKeywords(cur);
+      return [...acc, ...words];
+    }, []);
+
+    return keywords;
+  };
+
   const redirectHome = () => {
     navigation.reset({
       index: 0,

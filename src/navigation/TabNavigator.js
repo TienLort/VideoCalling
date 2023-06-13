@@ -36,6 +36,7 @@ const BottomTabNavigator = () => {
           ),
           color: 'success',
         }}
+        initialParams={{username: route.params?.username}}
       />
     </Tab.Navigator>
   );
