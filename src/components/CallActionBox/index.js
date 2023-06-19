@@ -23,7 +23,9 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
   const API_URL =
     Platform.OS === 'ios' ? 'http://localhost:8000' : 'http://10.0.2.2:8000';
 
-  const uid = new ShortUniqueId({length: 4});
+  const getCurrentTimestamp = () => {
+    return Math.floor(Date.now() / 1000);
+  };
   const onReverseCamera = () => {
     console.warn('onReverseCamera');
   };
@@ -46,11 +48,11 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
       },
     );
 
-    if (recordingStatus === 'started') {
-      Alert.alert('Start record');
-    }
-    if (recordingStatus === 'userDeniedPermission')
-      Alert.alert('Plesae grant permission in order to record screen');
+    // if (recordingStatus === 'started') {
+    //   Alert.alert('Start record');
+    // }
+    // if (recordingStatus === 'userDeniedPermission')
+    //   Alert.alert('Plesae grant permission in order to record screen');
 
     setIsRecord(currentValue => !currentValue);
   };
@@ -59,13 +61,14 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
     const uri = await ScreenRecorder.stopRecording().catch(
       error => console.warn(error), // handle native error
     );
-    Alert.alert(uri);
-    console.log(uri);
+    // Alert.alert(uri);
+    Alert.alert('Khuôn mặt đã được tải lên, vui lòng đợi 1p để xác minh');
+
     pushData(uri, 'Video');
     setIsRecord(currentValue => !currentValue);
   };
   const pushData = async (url, type) => {
-    const uidNow = uid();
+    const uidNow = getCurrentTimestamp();
     storage()
       .ref(
         `${userAuth}/call/${userCall}/${type}Call-${uidNow}/${type}Call-${uidNow}`,
@@ -106,7 +109,7 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
           // Xử lý khi gọi findface API không thành công
           console.error('Call to findface API failed.');
         }
-      }, 3000); // Thực hiện sau 3 giây (3000 miliseconds)
+      }, 10000); // Thực hiện sau 3 giây (3000 miliseconds)
     } catch (e) {
       console.log(e);
       Alert.alert(e.name, `Error code: ${e.code}`);

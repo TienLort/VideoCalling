@@ -50,7 +50,7 @@ const ProfileScreen = () => {
       });
     };
     fetchData();
-  }, [searchTerm]);
+  }, []);
 
   const showDetail = username => {
     navigation.navigate('History', {
@@ -74,8 +74,13 @@ const ProfileScreen = () => {
             <ListItem key={item.displayName} style={styles.listItem}>
               <Image
                 rounded
-                source={{uri: item.photoURL}}
-                style={{width: 200, height: 200}}
+                source={{
+                  uri:
+                    item.photoURL == null
+                      ? 'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320'
+                      : item.photoURL,
+                }}
+                style={{width: 150, height: 150}}
               />
               <View styles={{flex: 1}}>
                 <ListItem.Content>
@@ -85,7 +90,9 @@ const ProfileScreen = () => {
                 <Pressable
                   onPress={() => showDetail(item.displayName)}
                   style={styles.iconButton}>
-                  <MaterialIcons name="video-call" size={30} color={'white'} />
+                  <Text style={{color: '#fff', textAlign: 'center'}}>
+                    Start
+                  </Text>
                 </Pressable>
               </View>
             </ListItem>

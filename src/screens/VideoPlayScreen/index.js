@@ -114,30 +114,6 @@ const VideoPlayScreen = () => {
       <Text>Phát hiện khuôn mặt {dataResult.result == 0 ? 'Thật' : 'Giả'}</Text>
       <Text>Khuôn mặt được dự đoán với tỷ lệ {dataResult.percent}%</Text>
       <Text>Frame từng khung hình</Text>
-      {/* <FlatList
-        data={imagePath}
-        keyExtractor={(item, index) => `${index}`}
-        renderItem={({item, index}) => {
-          return (
-            <View style={{marginTop: 10}}>
-              <TouchableOpacity
-                key={item.title}
-                onPress={() => {
-                  setImageIndex(index);
-                  setIsImageViewVisible(true);
-                }}>
-                <Image
-                  style={{width: 200, height: 200}}
-                  source={item.source}
-                  resizeMode="cover"
-                />
-              </TouchableOpacity>
-            </View>
-          );
-        }}
-        numColumns={2}
-        contentContainerStyle={{padding: 10}}
-      /> */}
       <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
         {imagePath.map((item, index) => (
           <View style={{marginTop: 10, width: '50%', padding: 5}} key={index}>
@@ -149,7 +125,11 @@ const VideoPlayScreen = () => {
               }}>
               <Image
                 style={{width: '100%', aspectRatio: 1}}
-                source={item.source}
+                source={
+                  item.source == null
+                    ? 'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320'
+                    : item.source
+                }
                 resizeMode="cover"
               />
             </TouchableOpacity>

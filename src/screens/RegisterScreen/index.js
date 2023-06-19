@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import auth from '@react-native-firebase/auth';
 import * as Animatable from 'react-native-animatable';
 import {useNavigation} from '@react-navigation/native';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -36,10 +37,26 @@ const RegisterScreen = () => {
         body: JSON.stringify(payload),
       })
         .then(() => {
+          auth()
+            .createUserWithEmailAndPassword(userAccount, password)
+            .then(() => {
+              console.log('User account created & signed in!');
+            })
+            .catch(error => {
+              if (error.code === 'auth/email-already-in-use') {
+                console.log('That email address is already in use!');
+              }
+
+              if (error.code === 'auth/invalid-email') {
+                console.log('That email address is invalid!');
+              }
+
+              console.error(error);
+            });
           const uid = generateUID();
           firestore()
             .collection('Users')
-            .doc(userAccount)
+            .doc(username)
             .set({
               displayName: username,
               email: userAccount,

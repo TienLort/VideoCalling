@@ -66,7 +66,6 @@ const ContactsScreen = () => {
 
   return (
     <View style={styles.page}>
-      <Text>{param1.username}</Text>
       <TextInput
         value={searchTerm}
         onChangeText={setSearchTerm}
@@ -78,7 +77,16 @@ const ContactsScreen = () => {
         renderItem={({item}) => (
           <View styles={{flex: 1}}>
             <ListItem key={item.username} bottomDivider>
-              <Avatar rounded size="large" source={{uri: item.photoURL}} />
+              <Avatar
+                rounded
+                size="large"
+                source={{
+                  uri:
+                    item.photoURL == null
+                      ? 'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320'
+                      : item.photoURL,
+                }}
+              />
               <ListItem.Content>
                 <ListItem.Title>{item.email}</ListItem.Title>
                 <ListItem.Subtitle>{item.displayName}</ListItem.Subtitle>
