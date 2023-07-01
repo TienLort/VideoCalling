@@ -1,18 +1,15 @@
 import React, {useState, useEffect} from 'react';
 import {
-  Button,
   View,
   FlatList,
-  Text,
   StyleSheet,
   TextInput,
   Pressable,
-  Alert,
+  Text,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {Voximplant} from 'react-native-voximplant';
-import storage from '@react-native-firebase/storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {ListItem, Avatar} from 'react-native-elements';
 
@@ -22,7 +19,7 @@ const ContactsScreen = () => {
   const route = useRoute();
   const {params} = route;
   const param1 = params?.username;
-  console.log('vao param nay', params);
+
   const navigation = useNavigation();
   const voximplant = Voximplant.getInstance();
   useEffect(() => {
@@ -57,7 +54,6 @@ const ContactsScreen = () => {
   }, [searchTerm]);
 
   const callUser = user => {
-    console.log('user o contact', user);
     navigation.navigate('Calling', {
       user,
       userAuth: param1.username,
@@ -66,33 +62,45 @@ const ContactsScreen = () => {
 
   return (
     <View style={styles.page}>
-      <Text>{param1.username}</Text>
       <TextInput
         value={searchTerm}
         onChangeText={setSearchTerm}
         style={styles.searchInput}
         placeholder="Search..."
       />
-      <FlatList
-        data={filteredContacts}
-        renderItem={({item}) => (
-          <View styles={{flex: 1}}>
-            <ListItem key={item.username} bottomDivider>
-              <Avatar rounded size="large" source={{uri: item.photoURL}} />
-              <ListItem.Content>
-                <ListItem.Title>{item.email}</ListItem.Title>
-                <ListItem.Subtitle>{item.displayName}</ListItem.Subtitle>
-              </ListItem.Content>
-              <Pressable
-                onPress={() => callUser(item)}
-                style={styles.iconButton}>
-                <MaterialIcons name="video-call" size={30} color={'white'} />
-              </Pressable>
-            </ListItem>
-          </View>
-        )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
+      {filteredContacts.length > 0 ? (
+        <FlatList
+          data={filteredContacts}
+          renderItem={({item}) => (
+            <View styles={{flex: 1}}>
+              <ListItem key={item.username} bottomDivider>
+                <Avatar
+                  rounded
+                  size="large"
+                  source={{
+                    uri:
+                      item.photoURL == null
+                        ? 'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320'
+                        : item.photoURL,
+                  }}
+                />
+                <ListItem.Content>
+                  <ListItem.Title>{item.displayName}</ListItem.Title>
+                  <ListItem.Subtitle>{item.email}</ListItem.Subtitle>
+                </ListItem.Content>
+                <Pressable
+                  onPress={() => callUser(item)}
+                  style={styles.iconButton}>
+                  <MaterialIcons name="video-call" size={30} color={'white'} />
+                </Pressable>
+              </ListItem>
+            </View>
+          )}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+      ) : (
+        <Text>Chưa có user khác tham gia ứng dụng!</Text>
+      )}
     </View>
   );
 };

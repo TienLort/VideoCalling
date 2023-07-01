@@ -5,12 +5,13 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
+import auth from '@react-native-firebase/auth';
 import * as Animatable from 'react-native-animatable';
 import {useNavigation} from '@react-navigation/native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import firestore from '@react-native-firebase/firestore';
+import Toast from 'react-native-toast-message';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -27,7 +28,7 @@ const RegisterScreen = () => {
         userName: username,
         userPassword: password,
       };
-      console.log(payload);
+
       fetch(`${API_URL}/api/signup`, {
         method: 'POST',
         headers: {
@@ -36,10 +37,45 @@ const RegisterScreen = () => {
         body: JSON.stringify(payload),
       })
         .then(() => {
+          auth()
+            .createUserWithEmailAndPassword(userAccount, password)
+            .then(() => {
+              Toast.show({
+                type: 'success',
+                text1: 'Thông báo',
+                text2: 'Tải khoản đã được tạo',
+                position: 'top',
+                visibilityTime: 3000, // Adjust the duration as needed
+                autoHide: true,
+              });
+            })
+            .catch(error => {
+              if (error.code === 'auth/email-already-in-use') {
+                Toast.show({
+                  type: 'error',
+                  text1: 'Thông báo',
+                  text2: 'Email liên kết đã được sử dụng!',
+                  position: 'top',
+                  visibilityTime: 3000, // Adjust the duration as needed
+                  autoHide: true,
+                });
+              }
+
+              if (error.code === 'auth/invalid-email') {
+                Toast.show({
+                  type: 'error',
+                  text1: 'Thông báo',
+                  text2: 'Địa chỉ email  không hợp lệ!',
+                  position: 'top',
+                  visibilityTime: 3000, // Adjust the duration as needed
+                  autoHide: true,
+                });
+              }
+            });
           const uid = generateUID();
           firestore()
             .collection('Users')
-            .doc(userAccount)
+            .doc(username)
             .set({
               displayName: username,
               email: userAccount,
@@ -49,18 +85,28 @@ const RegisterScreen = () => {
               providerId: 'password',
               keywords: generateKeywords(username?.toLowerCase() ?? ''),
               createdAt: firestore.FieldValue.serverTimestamp(),
-            })
-            .then(() => {
-              console.log('User added!');
             });
         })
         .catch(err => {
-          console.log(err);
+          Toast.show({
+            type: 'error',
+            text1: err.name,
+            text2: `Error code: ${err.code}`,
+            position: 'top',
+            visibilityTime: 3000, // Adjust the duration as needed
+            autoHide: true,
+          });
         });
       redirectHome();
     } catch (e) {
-      console.log(e);
-      Alert.alert(e.name, `Error code: ${e.code}`);
+      Toast.show({
+        type: 'error',
+        text1: e.name,
+        text2: `Error code: ${e.code}`,
+        position: 'top',
+        visibilityTime: 3000, // Adjust the duration as needed
+        autoHide: true,
+      });
     }
   };
   const generateUID = () => {
@@ -149,11 +195,11 @@ const RegisterScreen = () => {
             autoCorrect={false}
             autoCapitalize="none"
           />
-          <Text style={styles.title}>Tên hiển thị</Text>
+          <Text style={styles.title}>Email hiển thị</Text>
           <TextInput
             value={userAccount}
             onChangeText={setUserAccount}
-            placeholder="username"
+            placeholder="email"
             style={styles.input}
             autoCorrect={false}
             autoCapitalize="none"

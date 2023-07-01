@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Pressable,
   PermissionsAndroid,
-  Alert,
   Platform,
 } from 'react-native';
 import CallActionBox from '../../components/CallActionBox';
@@ -13,6 +12,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation, useRoute} from '@react-navigation/core';
 import {Voximplant} from 'react-native-voximplant';
 import {Svg, Rect} from 'react-native-svg';
+import Toast from 'react-native-toast-message';
 
 const permissions = [
   PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
@@ -28,7 +28,6 @@ const CallingScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const svgRef = useRef(null);
-  console.log('route', route);
   const {user, call: incomingCall, isIncomingCall, userAuth} = route?.params;
   const voximplant = Voximplant.getInstance();
   const call = useRef(incomingCall);
@@ -45,7 +44,14 @@ const CallingScreen = () => {
       const cameraGranted =
         granted[PermissionsAndroid.PERMISSIONS.CAMERA] === 'granted';
       if (!cameraGranted || !recordAudioGranted) {
-        Alert.alert('Permissions not granted');
+        Toast.show({
+          type: 'error',
+          text1: 'Thông báo',
+          text2: `Bạn chưa cấp quyền truy cập camera`,
+          position: 'top',
+          visibilityTime: 3000, // Adjust the duration as needed
+          autoHide: true,
+        });
       } else {
         setPermissionGranted(true);
       }
@@ -71,7 +77,7 @@ const CallingScreen = () => {
 
     const makeCall = async () => {
       call.current = await voximplant.call(user.displayName, callSettings);
-      console.log('user', user.displayName);
+
       subscribeToCallEvents();
     };
 
@@ -119,14 +125,27 @@ const CallingScreen = () => {
     };
 
     const showError = reason => {
-      Alert.alert('Call failed', `Reason: ${reason}`, [
-        {
-          text: 'Ok',
-          onPress: navigation.navigate('Contacts', {
+      // Alert.alert('Call failed', `Reason: ${reason}`, [
+      //   {
+      //     text: 'Ok',
+      //     onPress: navigation.navigate('Contacts', {
+      //       username: {username: userAuth},
+      //     }),
+      //   },
+      // ]);
+      Toast.show({
+        type: 'error',
+        text1: 'Call failed',
+        text2: `Reason: ${reason}`,
+        position: 'top',
+        visibilityTime: 2000,
+        autoHide: true,
+        onHide: () => {
+          navigation.navigate('Contacts', {
             username: {username: userAuth},
-          }),
+          });
         },
-      ]);
+      });
     };
 
     if (isIncomingCall) {
@@ -147,6 +166,13 @@ const CallingScreen = () => {
     call.current.hangup();
   };
 
+  const onMuteCall = isMute => {
+    call.current.setMute(isMute);
+  };
+  const onToggleVideoSend = isToggleVideo => {
+    call.current.sendVideo(isToggleVideo);
+  };
+
   return (
     <View style={styles.page}>
       <Pressable onPress={goBack} style={styles.backButton}>
@@ -158,10 +184,10 @@ const CallingScreen = () => {
         style={styles.remoteVideo}
       />
 
-      <Voximplant.VideoView
+      {/* <Voximplant.VideoView
         videoStreamId={localVideoStreamId}
         style={styles.localVideo}
-      />
+      /> */}
       <Svg
         ref={svgRef}
         style={{
@@ -181,6 +207,8 @@ const CallingScreen = () => {
         onHangupPress={onHangupPress}
         userAuth={userAuth}
         userCall={user?.displayName}
+        onMuteCall={onMuteCall}
+        onToggleVideoSend={onToggleVideoSend}
       />
     </View>
   );

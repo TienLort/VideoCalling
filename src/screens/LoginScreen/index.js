@@ -4,15 +4,14 @@ import {
   View,
   TextInput,
   StyleSheet,
-  Pressable,
   Text,
-  Alert,
   TouchableOpacity,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Entypo from 'react-native-vector-icons/Entypo';
 import {Voximplant} from 'react-native-voximplant';
 import {APP_NAME, ACC_NAME} from '../../Constants';
+import Toast from 'react-native-toast-message';
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
@@ -41,13 +40,26 @@ const LoginScreen = () => {
 
       redirectHome(username);
     } catch (e) {
-      console.log(e);
-      Alert.alert(e.name, `Error code: ${e.code}`);
+      Toast.show({
+        type: 'error',
+        text1: e.name,
+        text2: `Error code: ${e.code}`,
+        position: 'top',
+        visibilityTime: 3000, // Adjust the duration as needed
+        autoHide: true,
+      });
     }
   };
 
   const redirectHome = username => {
-    console.log(username);
+    Toast.show({
+      type: 'success',
+      text1: 'Thông báo',
+      text2: 'Đăng nhập thành công',
+      position: 'top',
+      visibilityTime: 2000,
+      autoHide: true,
+    });
     navigation.reset({
       index: 0,
       routes: [

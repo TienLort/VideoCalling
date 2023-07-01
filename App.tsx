@@ -3,17 +3,20 @@ import {
   StatusBar,
   StyleSheet
 } from 'react-native';
-import { NavigationContainer } from "@react-navigation/native";
 import { MenuProvider } from 'react-native-popup-menu';
-import BottomTabNavigator from './src/navigation/TabNavigator';
 import StackNavigator from './src/navigation/StackNavigator';
+import Toast from 'react-native-toast-message';
 
 function App(): JSX.Element {
   return (
-    <MenuProvider>
-      <StatusBar barStyle={'dark-content'} />
-      <StackNavigator />
-    </MenuProvider>
+    <>
+      <MenuProvider>
+        <StatusBar barStyle={'dark-content'} />
+        <StackNavigator />
+      </MenuProvider>
+      <Toast />
+    </>
+
   );
 }
 
