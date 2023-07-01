@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {
   View,
-  FlatList,
+  ActivityIndicator,
   Image,
   TouchableOpacity,
   StyleSheet,
@@ -15,11 +15,11 @@ import {useRoute} from '@react-navigation/core';
 import storage from '@react-native-firebase/storage';
 import Video from 'react-native-video';
 import firestore from '@react-native-firebase/firestore';
+import Toast from 'react-native-toast-message';
 
 const {width} = Dimensions.get('window');
 
 const VideoPlayScreen = () => {
-  // Render each video item
   const [videoPath, setVideoPath] = useState([]);
   const [imagePath, setImagePath] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,18 +76,39 @@ const VideoPlayScreen = () => {
               }
               setDataResult(data);
             } else {
-              console.log('Sai me r');
+              Toast.show({
+                type: 'error',
+                text1: 'Thông báo',
+                text2: 'Không tìm thấy kết quả nhận diện',
+                position: 'top',
+                visibilityTime: 3000, // Adjust the duration as needed
+                autoHide: true,
+              });
             }
           })
           .catch(error => {
-            console.log('Lỗi khi truy vấn dữ liệu:', error);
+            Toast.show({
+              type: 'error',
+              text1: 'Thông báo',
+              text2: `Lỗi truy vấn dữ liệu: ${error} `,
+              position: 'top',
+              visibilityTime: 3000, // Adjust the duration as needed
+              autoHide: true,
+            });
           });
         setVideoPath(dataVid);
         setImagePath(dataImage);
 
-        setIsLoading(false); // Đặt isLoading thành false khi dữ liệu đã được tải xong
+        setIsLoading(false);
       } catch (error) {
-        console.log(error);
+        Toast.show({
+          type: 'error',
+          text1: 'Thông báo',
+          text2: `Thông báo lỗi: ${error} `,
+          position: 'top',
+          visibilityTime: 3000, // Adjust the duration as needed
+          autoHide: true,
+        });
       }
     };
 
@@ -95,48 +116,65 @@ const VideoPlayScreen = () => {
   }, []);
 
   if (isLoading) {
-    return <Text>Loading...</Text>; // Hiển thị thông báo Loading trong quá trình tải dữ liệu
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
   }
-  console.log(dataResult);
   return (
     <ScrollView>
       <View style={{marginTop: 10}}>
-        <Video
-          source={videoPath[0].source}
-          style={styles.video}
-          resizeMode="cover"
-          controls={true}
-          paused={true}
-          poster={imagePath[0].source.uri}
-        />
+        {videoPath.length > 0 ? (
+          <Video
+            source={videoPath[0].source}
+            style={styles.video}
+            resizeMode="cover"
+            controls={true}
+            paused={true}
+            poster={imagePath.length > 0 ? imagePath[0].source.uri : ''}
+          />
+        ) : (
+          <Text style={styles.errorToast}>
+            Lỗi xử lý trong quá trình lấy video, bạn vui lòng thử lại sau
+          </Text>
+        )}
       </View>
+
       <Text>Kêt quả dự đoán:</Text>
       <Text>Phát hiện khuôn mặt {dataResult.result == 0 ? 'Thật' : 'Giả'}</Text>
       <Text>Khuôn mặt được dự đoán với tỷ lệ {dataResult.percent}%</Text>
       <Text>Frame từng khung hình</Text>
-      <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-        {imagePath.map((item, index) => (
-          <View style={{marginTop: 10, width: '50%', padding: 5}} key={index}>
-            <TouchableOpacity
-              key={item.title}
-              onPress={() => {
-                setImageIndex(index);
-                setIsImageViewVisible(true);
-              }}>
-              <Image
-                style={{width: '100%', aspectRatio: 1}}
-                source={
-                  item.source == null
-                    ? 'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320'
-                    : item.source
-                }
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
-            <Text style={{marginTop: 5}}>{item.title}</Text>
-          </View>
-        ))}
-      </View>
+      {imagePath.length > 0 ? (
+        <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+          {imagePath.map((item, index) => (
+            <View style={{marginTop: 10, width: '50%', padding: 5}} key={index}>
+              <TouchableOpacity
+                key={item.title}
+                onPress={() => {
+                  setImageIndex(index);
+                  setIsImageViewVisible(true);
+                }}>
+                <Image
+                  style={{width: '100%', aspectRatio: 1}}
+                  source={
+                    item.source == null
+                      ? 'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320'
+                      : item.source
+                  }
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+              <Text style={{marginTop: 5}}>{item.title}</Text>
+            </View>
+          ))}
+        </View>
+      ) : (
+        <Text style={styles.errorToast}>
+          Lỗi xử lý trong quá trình lấy hình ảnh, bạn vui lòng thử lại sau
+        </Text>
+      )}
+
       <Modal
         visible={isImageViewVisible}
         transparent={true}
@@ -144,10 +182,8 @@ const VideoPlayScreen = () => {
         <ImageViewer
           imageUrls={imagePath}
           index={imageIndex}
-          onSwipeDown={() => {
-            console.log('onSwipeDown');
-          }}
-          onMove={data => console.log(data)}
+          onSwipeDown={() => {}}
+          onMove={() => {}}
           enableSwipeDown={true}
         />
       </Modal>
@@ -156,21 +192,12 @@ const VideoPlayScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  videoContainer: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
+  errorToast: {
+    alignContent: 'center',
   },
   video: {
     width: width,
     height: 300,
-  },
-  thumbnail: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
   },
 });
 

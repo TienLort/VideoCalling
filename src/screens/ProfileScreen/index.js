@@ -7,7 +7,6 @@ import {
   StyleSheet,
   TextInput,
   Pressable,
-  Alert,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import {useRoute, useNavigation} from '@react-navigation/native';
@@ -67,38 +66,42 @@ const ProfileScreen = () => {
         style={styles.searchInput}
         placeholder="Search..."
       />
-      <FlatList
-        data={callContacts}
-        renderItem={({item}) => (
-          <View styles={{flex: 1}}>
-            <ListItem key={item.displayName} style={styles.listItem}>
-              <Image
-                rounded
-                source={{
-                  uri:
-                    item.photoURL == null
-                      ? 'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320'
-                      : item.photoURL,
-                }}
-                style={{width: 150, height: 150}}
-              />
-              <View styles={{flex: 1}}>
-                <ListItem.Content>
-                  <ListItem.Title>{item.email}</ListItem.Title>
-                  <ListItem.Subtitle>{item.displayName}</ListItem.Subtitle>
-                </ListItem.Content>
-                <Pressable
-                  onPress={() => showDetail(item.displayName)}
-                  style={styles.iconButton}>
-                  <Text style={{color: '#fff', textAlign: 'center'}}>
-                    Kiểm tra
-                  </Text>
-                </Pressable>
-              </View>
-            </ListItem>
-          </View>
-        )}
-      />
+      {callContacts.length > 0 ? (
+        <FlatList
+          data={callContacts}
+          renderItem={({item}) => (
+            <View styles={{flex: 1}}>
+              <ListItem key={item.displayName} style={styles.listItem}>
+                <Image
+                  rounded
+                  source={{
+                    uri:
+                      item.photoURL == null
+                        ? 'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320'
+                        : item.photoURL,
+                  }}
+                  style={{width: 150, height: 150}}
+                />
+                <View styles={{flex: 1}}>
+                  <ListItem.Content>
+                    <ListItem.Title>{item.email}</ListItem.Title>
+                    <ListItem.Subtitle>{item.displayName}</ListItem.Subtitle>
+                  </ListItem.Content>
+                  <Pressable
+                    onPress={() => showDetail(item.displayName)}
+                    style={styles.iconButton}>
+                    <Text style={{color: '#fff', textAlign: 'center'}}>
+                      Kiểm tra
+                    </Text>
+                  </Pressable>
+                </View>
+              </ListItem>
+            </View>
+          )}
+        />
+      ) : (
+        <Text>Bạn chưa lưu lịch sử cuộc gọi nào!</Text>
+      )}
     </View>
   );
 };

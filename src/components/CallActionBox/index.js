@@ -1,12 +1,11 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, Pressable, Text, Alert} from 'react-native';
+import {View, StyleSheet, Pressable, Text} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
-import ShortUniqueId from 'short-unique-id';
 import storage from '@react-native-firebase/storage';
 import ScreenRecorder from 'react-native-screen-mic-recorder';
-import {captureScreen} from 'react-native-view-shot';
+import Toast from 'react-native-toast-message';
 
 import {
   Menu,
@@ -15,11 +14,15 @@ import {
   MenuTrigger,
 } from 'react-native-popup-menu';
 
-const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
-  console.log('userAuth1: ' + userAuth, userCall);
+const CallActionBox = ({
+  onHangupPress,
+  userAuth,
+  userCall,
+  onMuteCall,
+  onToggleVideoSend,
+}) => {
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
-  const [isRecord, setIsRecord] = useState(false);
   const API_URL =
     Platform.OS === 'ios' ? 'http://localhost:8000' : 'http://10.0.2.2:8000';
 
@@ -31,10 +34,13 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
   };
 
   const onToggleCamera = () => {
+    onToggleVideoSend(!isCameraOn);
     setIsCameraOn(currentValue => !currentValue);
   };
 
   const onToggleMicrophone = () => {
+    onMuteCall(!isMicOn);
+
     setIsMicOn(currentValue => !currentValue);
   };
   const options = {
@@ -44,23 +50,49 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
   const recordScreen = async () => {
     const recordingStatus = await ScreenRecorder.startRecording(options).catch(
       error => {
-        console.warn(error); // handle native error
+        Toast.show({
+          type: 'error',
+          text1: 'Thông báo',
+          text2: `Thông báo lỗi : ${error}`,
+          position: 'top',
+          visibilityTime: 3000, // Adjust the duration as needed
+          autoHide: true,
+        });
       },
     );
 
-    // if (recordingStatus === 'started') {
-    //   Alert.alert('Start record');
-    // }
     if (recordingStatus === 'userDeniedPermission')
-      Alert.alert('Plesae grant permission in order to record screen');
+      Toast.show({
+        type: 'info',
+        text1: 'Thông báo',
+        text2: 'Vui lòng cấp quyền để ghi lại màn hình',
+        position: 'top',
+        visibilityTime: 3000, // Adjust the duration as needed
+        autoHide: true,
+      });
   };
 
   const stopRecord = async () => {
     const uri = await ScreenRecorder.stopRecording().catch(
-      error => console.warn(error), // handle native error
+      error => {
+        Toast.show({
+          type: 'error',
+          text1: 'Thông báo',
+          text2: `Thông báo lỗi : ${error}`,
+          position: 'top',
+          visibilityTime: 3000, // Adjust the duration as needed
+          autoHide: true,
+        });
+      }, // handle native error
     );
-    // Alert.alert(uri);
-    Alert.alert('Khuôn mặt đã được tải lên, vui lòng đợi 1p để xác minh');
+    Toast.show({
+      type: 'info',
+      text1: 'Thông báo',
+      text2: 'Khuôn mặt đã được tải lên, vui lòng đợi 1p để xác minh',
+      position: 'top',
+      visibilityTime: 3000, // Adjust the duration as needed
+      autoHide: true,
+    });
 
     pushData(uri, 'Video');
   };
@@ -72,14 +104,20 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
       )
       .putFile(url)
       .catch(error => {
-        console.log(error);
+        Toast.show({
+          type: 'error',
+          text1: 'Thông báo',
+          text2: `Thông báo lỗi :${error}`,
+          position: 'top',
+          visibilityTime: 3000, // Adjust the duration as needed
+          autoHide: true,
+        });
       });
     try {
       const payload = {
         urlUpload: `${userAuth}/call/${userCall}/${type}Call-${uidNow}/${type}Call-${uidNow}`,
         type: 'video',
       };
-      console.log(payload);
 
       setTimeout(async () => {
         const findFaceResponse = await fetch(`${API_URL}/api/findface`, {
@@ -100,16 +138,34 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
           });
           // Xử lý dữ liệu trả về từ deepfake API
           const deepFakeData = await deepFakeResponse.json();
-          Alert.alert('Xác thực hoàn tất, bạn có thể kiểm tra tại profile');
+          Toast.show({
+            type: 'success',
+            text1: 'Thông báo',
+            text2: 'Xác thực hoàn tất, bạn có thể kiểm tra tại profile',
+            position: 'top',
+            visibilityTime: 3000, // Adjust the duration as needed
+            autoHide: true,
+          });
         } else {
-          // Xử lý khi gọi findface API không thành công
-          console.error('Call to findface API failed.');
-          Alert.alert('Lỗi hệ thống trong nhận diện khuôn mặt giả! ');
+          Toast.show({
+            type: 'error',
+            text1: 'Thông báo',
+            text2: 'Lỗi hệ thống trong nhận diện khuôn mặt giả!',
+            position: 'top',
+            visibilityTime: 3000, // Adjust the duration as needed
+            autoHide: true,
+          });
         }
       }, 10000); // Thực hiện sau 3 giây (3000 miliseconds)
     } catch (e) {
-      console.log(e);
-      Alert.alert(e.name, `Error code: ${e.code}`);
+      Toast.show({
+        type: 'error',
+        text1: e.name,
+        text2: `Error code: ${e.code}`,
+        position: 'top',
+        visibilityTime: 3000, // Adjust the duration as needed
+        autoHide: true,
+      });
     }
   };
   return (

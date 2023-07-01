@@ -12,8 +12,6 @@ import {useRoute, useNavigation} from '@react-navigation/core';
 import storage from '@react-native-firebase/storage';
 
 const HistoryScreen = () => {
-  // Render each video item
-  const [currentVideo, setCurrentVideo] = useState(null);
   const [videoPath, setVideoPath] = useState([]);
   const route = useRoute();
   const navigation = useNavigation();
@@ -22,7 +20,6 @@ const HistoryScreen = () => {
     const reference = storage().ref(`${userAuth}/call/${userContact}`);
     const data = [];
     const fetchData = async () => {
-      // You can await here
       const folderList = await reference.listAll();
       for (const folderRef of folderList.prefixes) {
         const dataFolder = folderRef.fullPath;
@@ -31,19 +28,6 @@ const HistoryScreen = () => {
         data.push(dataFolderName);
       }
       setVideoPath(data);
-
-      // folderList.items.forEach(async folder => {
-      //   console.log(folder);
-      //   const url = await storage().ref(folder.fullPath).getDownloadURL();
-      //   // console.log(url);
-      //   data.push({
-      //     id: folder.fullPath.split('/').pop(),
-      //     url: url,
-      //     thumbnail:
-      //       'https://firebasestorage.googleapis.com/v0/b/videocall1-51243.appspot.com/o/default-avatar.png?alt=media&token=582d1c2c-aff8-429d-b7ee-c3ba067b0320',
-      //   });
-      //   setVideoPath(data);
-      // });
     };
     fetchData();
   }, []);
