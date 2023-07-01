@@ -51,10 +51,8 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
     // if (recordingStatus === 'started') {
     //   Alert.alert('Start record');
     // }
-    // if (recordingStatus === 'userDeniedPermission')
-    //   Alert.alert('Plesae grant permission in order to record screen');
-
-    setIsRecord(currentValue => !currentValue);
+    if (recordingStatus === 'userDeniedPermission')
+      Alert.alert('Plesae grant permission in order to record screen');
   };
 
   const stopRecord = async () => {
@@ -65,7 +63,6 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
     Alert.alert('Khuôn mặt đã được tải lên, vui lòng đợi 1p để xác minh');
 
     pushData(uri, 'Video');
-    setIsRecord(currentValue => !currentValue);
   };
   const pushData = async (url, type) => {
     const uidNow = getCurrentTimestamp();
@@ -101,13 +98,13 @@ const CallActionBox = ({onHangupPress, userAuth, userCall}) => {
             },
             body: JSON.stringify(payload),
           });
-
           // Xử lý dữ liệu trả về từ deepfake API
           const deepFakeData = await deepFakeResponse.json();
-          console.log(deepFakeData);
+          Alert.alert('Xác thực hoàn tất, bạn có thể kiểm tra tại profile');
         } else {
           // Xử lý khi gọi findface API không thành công
           console.error('Call to findface API failed.');
+          Alert.alert('Lỗi hệ thống trong nhận diện khuôn mặt giả! ');
         }
       }, 10000); // Thực hiện sau 3 giây (3000 miliseconds)
     } catch (e) {

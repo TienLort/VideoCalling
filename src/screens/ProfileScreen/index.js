@@ -91,7 +91,7 @@ const ProfileScreen = () => {
                   onPress={() => showDetail(item.displayName)}
                   style={styles.iconButton}>
                   <Text style={{color: '#fff', textAlign: 'center'}}>
-                    Start
+                    Kiểm tra
                   </Text>
                 </Pressable>
               </View>
